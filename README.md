@@ -3,6 +3,8 @@ The source code for my RabbitMQ tryout.
 
 RabbitMQ is an open-source message broker that makes communication between services very easy. In particular, RabbitMQ uses a Publish/Subscribe pattern with an Advanced Message Queuing Protocol. To get started with RabbitMQ see this link: https://www.rabbitmq.com/#getstarted
 
+Avoid any common implementation mistakes using this list: https://www.cloudamqp.com/blog/part4-rabbitmq-13-common-errors.html
+
 This project contains code for RabbitMQ tutorials with their ports to various languages.
 
 # Running RabbitMQ server in Docker
