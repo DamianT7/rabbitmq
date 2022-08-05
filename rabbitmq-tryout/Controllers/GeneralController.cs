@@ -50,60 +50,88 @@ namespace LHC_Payment_API.Controllers
 
         [HttpGet]
         [Route("/api/sendmq")]
-        public IActionResult SendMQ()
+        public IActionResult SendMQ(string queue, string message)
         {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
+            try
             {
-                channel.QueueDeclare(queue: "hello",
-                                     durable: false,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
+                if (null == queue || "" == queue ||
+                    null == message || "" == message)
+                    return BadRequest("Provide a message and queue name in the params");
 
-                string message = "Hi there, I'm Damian!";
-                var body = Encoding.UTF8.GetBytes(message);
+                var factory = new ConnectionFactory() { HostName = "localhost" };
+                using (var connection = factory.CreateConnection())
+                using (var channel = connection.CreateModel())
+                {
+                    channel.QueueDeclare(queue: queue,
+                                         durable: false,
+                                         exclusive: false,
+                                         autoDelete: false,
+                                         arguments: null);
 
-                channel.BasicPublish(exchange: "",
-                                     routingKey: "hello",
-                                     basicProperties: null,
-                                     body: body);
-                Console.WriteLine(" [x] Sent {0}", message);
+                    var body = Encoding.UTF8.GetBytes(message);
+
+                    channel.BasicPublish(exchange: "",
+                                         routingKey: queue,
+                                         basicProperties: null,
+                                         body: body);
+                    _logger.LogInformation(" [x] Sent {0}", message);
+                }
+
+                return Ok();
             }
-
-            return Ok();
+            catch(Exception e)
+            {
+                _logger.LogError("Somthing went wrong: " + e.Message);
+                return StatusCode(500);
+            }
         }
 
 
         [HttpGet]
         [Route("/api/receivemq")]
-        public IActionResult ReceiveMQ()
+        public IActionResult ReceiveMQ(string queue)
         {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
+            try
             {
-                channel.QueueDeclare(queue: "hello",
-                                     durable: false,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
+                if (null == queue || "" == queue)
+                    return BadRequest("Provide a queue name in the params");
 
-                var consumer = new EventingBasicConsumer(channel);
-                consumer.Received += (model, ea) =>
+                var message = "";
+                var factory = new ConnectionFactory() { HostName = "localhost" };
+                using (var connection = factory.CreateConnection())
+                using (var channel = connection.CreateModel())
                 {
-                    var body = ea.Body.ToArray();
-                    var message = Encoding.UTF8.GetString(body);
-                    Console.WriteLine(" [x] Received {0}", message);
-                };
-                channel.BasicConsume(queue: "hello",
-                                     autoAck: true,
-                                     consumer: consumer);
+                    channel.QueueDeclare(queue: queue,
+                                         durable: false,
+                                         exclusive: false,
+                                         autoDelete: false,
+                                         arguments: null);
 
+                    var consumer = new EventingBasicConsumer(channel);
+                    consumer.Received += (model, ea) =>
+                    {
+                        var body = ea.Body.ToArray();
+                        message = Encoding.UTF8.GetString(body);
+                        _logger.LogInformation(" [x] Received {0}", message);
+                    };
+
+                    channel.BasicConsume(queue: queue,
+                                         autoAck: true,
+                                         consumer: consumer);
+                }
+                if(message == "")
+                {
+                    _logger.LogError(" [x] Nothing in the queue");
+                    return BadRequest("Nothing in the queue");
+                }
+
+                return Ok();
             }
-
-            return Ok();
+            catch(Exception e)
+            {
+                _logger.LogError("Somthing went wrong: " + e.Message);
+                return StatusCode(500);
+            }
         }
 
         #endregion ~~ RabbitMQ ~~
