@@ -38,7 +38,7 @@ networks:
 ```
 
 <h2>Step 3</h2>
-Open a terminal, navigate to your rabbitmq-go folder and run "docker-compose" up. Make sure that your Docker daemon is running.
+Open a terminal, navigate to your rabbitmq-go folder and run "docker-compose". Make sure that your Docker daemon is running.
 This command will pull the rabbitmq:3-management-alpine image, create the container rabbitmq and start the service and webUI.
 
 <h2>Step 4</h2>

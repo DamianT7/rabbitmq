@@ -86,7 +86,6 @@ namespace LHC_Payment_API.Controllers
             }
         }
 
-
         [HttpGet]
         [Route("/api/receivemq")]
         public IActionResult ReceiveMQ(string queue)
