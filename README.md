@@ -40,4 +40,27 @@ Open a terminal, navigate to your rabbitmq-go folder and run "docker-compose" up
 This command will pull the rabbitmq:3-management-alpine image, create the container rabbitmq and start the service and webUI.
 
 <h2>Step 4</h2>
-Head over to http://localhost:15672. You should see the RabbitMQ UI. Use guest as username and password.
+Head over to ``` http://localhost:15672 ```. You should see the RabbitMQ UI. Use guest as username and password.
+
+# Sending and receiving messages
+
+Make sure you are running the .NET Core 6.0 application from this repository and you got the RabbitMQ server up and running.
+
+<h2>Sending messages</h2>
+Go to the url: ``` https://localhost:5001/api/sendmq ``` and set the following params to the GET request:
+
+queue={queue name}
+message={message}
+
+So a send message request can look like this: ``` https://localhost:5001/api/sendmq?queue=testqueue&message=Hi, it's me! ```
+
+<h2>Sending messages</h2>
+Go to the url: ``` https://localhost:5001/api/receivemq ``` and set the following params to the GET request:
+
+queue={queue name}
+
+So a receive message request can look like this: ``` https://localhost:5001/api/sendmq?queue=testqueue ```
+
+
+
+
